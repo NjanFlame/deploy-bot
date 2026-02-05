@@ -30,8 +30,8 @@ if not shutil.which("lxc"):
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN', '')
 MAIN_ADMIN_ID = int(os.getenv('MAIN_ADMIN_ID', '1133055533318946837'))
 BOT_PREFIX = os.getenv('BOT_PREFIX', '.')
-BOT_NAME = os.getenv('BOT_NAME', 'XeloraCloud v4.1.0')
-BOT_VERSION = os.getenv('BOT_VERSION', '4.1.0')
+BOT_NAME = os.getenv('BOT_NAME', 'Zycron')
+BOT_VERSION = os.getenv('BOT_VERSION', '1.1')
 
 # System configuration
 CPU_THRESHOLD = int(os.getenv('DEFAULT_CPU_THRESHOLD', '90'))
@@ -2367,3 +2367,4 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
     except Exception as e:
         logger.error(f"Failed to start bot: {e}")
+
