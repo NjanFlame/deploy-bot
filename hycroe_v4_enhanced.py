@@ -30,8 +30,8 @@ if not shutil.which("lxc"):
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN', '')
 MAIN_ADMIN_ID = int(os.getenv('MAIN_ADMIN_ID', '1133055533318946837'))
 BOT_PREFIX = os.getenv('BOT_PREFIX', '.')
-BOT_NAME = os.getenv('BOT_NAME', 'XeloraCloud v4.1.0')
-BOT_VERSION = os.getenv('BOT_VERSION', '4.1.0')
+BOT_NAME = os.getenv('BOT_NAME', 'Zycron')
+BOT_VERSION = os.getenv('BOT_VERSION', '1.1')
 
 # System configuration
 CPU_THRESHOLD = int(os.getenv('DEFAULT_CPU_THRESHOLD', '90'))
@@ -44,7 +44,7 @@ STATUS_UPDATE_INTERVAL = int(os.getenv('STATUS_UPDATE_INTERVAL', '300'))
 # Free plans configuration
 FREE_PLAN_ENABLED = os.getenv('FREE_PLAN_ENABLED', 'true').lower() == 'true'
 INVITE_BOOST_CREDITS = int(os.getenv('INVITE_BOOST_CREDITS', '50'))
-MAX_FREE_VPS_PER_USER = int(os.getenv('MAX_FREE_VPS_PER_USER', '1'))
+MAX_FREE_VPS_PER_USER = int(os.getenv('MAX_FREE_VPS_PER_USER', '2'))
 
 # Bot setup
 intents = discord.Intents.default()
@@ -161,7 +161,7 @@ def create_embed(title, description="", color=0x1a1a1a, fields=None, thumbnail=T
     )
 
     if thumbnail:
-        embed.set_thumbnail(url="https://i.imghippo.com/files/Mf6255KwU.png")
+        embed.set_thumbnail(url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg")
 
     if fields:
         for field in fields:
@@ -172,8 +172,8 @@ def create_embed(title, description="", color=0x1a1a1a, fields=None, thumbnail=T
             )
 
     embed.set_footer(
-        text=f"{BOT_NAME} • NjanFlame • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        icon_url="https://i.imghippo.com/files/Mf6255KwU.png"
+        text=f"{BOT_NAME} • Michael • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        icon_url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg"
     )
 
     return embed
@@ -389,7 +389,7 @@ class HelpView(discord.ui.View):
             return self.get_system_info_embed()
     
     def get_user_commands_embed(self):
-        embed = create_embed("🔧 XeloraCloud VPS Management - Help (Page 1/3)", f"{BOT_NAME}\nUser Commands", 0x1a1a1a)
+        embed = create_embed("🔧 ZycronHosting VPS Management - Help (Page 1/3)", f"{BOT_NAME}\nUser Commands", 0x1a1a1a)
         
         commands_list = [
             "`.plans`\nView available VPS plans",
@@ -409,7 +409,7 @@ class HelpView(discord.ui.View):
         if not self.is_admin:
             return self.get_user_commands_embed()
             
-        embed = create_embed("⚙️ XeloraCloud VPS Management - Help (Page 2/3)", f"{BOT_NAME}\nAdmin Commands", 0x1a1a1a)
+        embed = create_embed("⚙️ Zycron VPS Management - Help (Page 2/3)", f"{BOT_NAME}\nAdmin Commands", 0x1a1a1a)
         
         commands_list = [
             "`.deploy <user>`\nDeploy VPS for user",
@@ -436,14 +436,14 @@ class HelpView(discord.ui.View):
         return embed
     
     def get_system_info_embed(self):
-        embed = create_embed("📊 XeloraCloud VPS Management - Help (Page 3/3)", f"{BOT_NAME}\nPurge System & Information", 0x1a1a1a)
+        embed = create_embed("📊 Zycron VPS Management - Help (Page 3/3)", f"{BOT_NAME}\nPurge System & Information", 0x1a1a1a)
         
         # System information
         system_info = get_system_info()
         total_vps = sum(len(vps_list) for vps_list in vps_data.values())
         running_vps = sum(1 for vps_list in vps_data.values() for vps in vps_list if vps.get('status') == 'running')
         
-        system_text = f"**Developer:** XeloraCloud\n**Processor:** Ryzen 9 7900\n**Network:** IPv6 Only (no IPv4)\n**Ticket Required:** ✅ Yes"
+        system_text = f"**Developer:** Zycron\n**Processor:** Ryzen 9 7900\n**Network:** IPv6 Only (no IPv4)\n**Ticket Required:** ✅ Yes"
         
         purge_status = "✅ ACTIVE" if admin_data.get('purge_protection', {}).get('enabled') else "❌ INACTIVE"
         protected_users = len(admin_data.get('purge_protection', {}).get('protected_users', []))
@@ -514,7 +514,7 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.watching, 
-            name=f"XeloraCloud VPS Manager"
+            name=f"Zycron VPS Manager"
         )
     )
     
@@ -889,6 +889,10 @@ class DeploymentView(discord.ui.View):
             await interaction.edit_original_response(embed=deploy_embed)
             
             await execute_lxc(f"lxc launch {self.selected_os} {container_name} --config limits.memory={ram_mb}MB --config limits.cpu={plan_specs['cpu']} -s dir")
+            await execute_lxc(f"lxc config set {container_name} security.nesting true")
+            await execute_lxc(f"lxc config set {container_name} security.privileged true")
+            await execute_lxc(f"lxc config device add {container_name} fuse unix-char path=/dev/fuse")
+            await execute_lxc(f"lxc config set {container_name} linux.kernel_modules overlay,loop,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter")
             
             # Save to database
             vps_info = {
@@ -1486,7 +1490,7 @@ async def purge_info(ctx):
     
     system_info = get_system_info()
     if system_info:
-        embed.add_field(name="📊 System Information", value=f"**Developer:** XeloraCloud\n**Processor:** Ryzen 9 7900\n**Network:** IPv6 Only (no IPv4)\n**Ticket Required:** ✅ Yes", inline=False)
+        embed.add_field(name="📊 System Information", value=f"**Developer:** Zycron\n**Processor:** Ryzen 9 7900\n**Network:** IPv6 Only (no IPv4)\n**Ticket Required:** ✅ Yes", inline=False)
     
     await ctx.send(embed=embed)
 
@@ -2013,8 +2017,8 @@ async def create_vps(ctx, user: discord.Member, ram: int, cpu: int, disk: int):
                     logger.warning(f"Failed to assign VPS role to {user.name}")
 
         # Final success embed with enhanced formatting
-        success_embed = create_success_embed("✅ XeloraCloud - XeloraCloud VPS Created Successfully", "")
-        success_embed.set_thumbnail(url="https://i.imghippo.com/files/Mf6255KwU.png")
+        success_embed = create_success_embed("✅ Zycron - Zycron VPS Created Successfully", "")
+        success_embed.set_thumbnail(url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg")
         
         # Owner section
         success_embed.add_field(name="👤 Owner", value=f"{user.mention} • Piyush", inline=True)
@@ -2035,8 +2039,8 @@ async def create_vps(ctx, user: discord.Member, ram: int, cpu: int, disk: int):
         success_embed.add_field(name="💾 Disk Note", value="Run `sudo resize2fs /` inside VPS if needed to expand filesystem.", inline=False)
         
         # Footer with branding
-        success_embed.set_footer(text=f"XeloraCloud VPS Manager • Powered by Cloud Technology • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 
-                                icon_url="https://i.imghippo.com/files/Mf6255KwU.png")
+        success_embed.set_footer(text=f"Zycron VPS Manager • Powered by Cloud Technology • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 
+                                icon_url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg")
 
         await creation_msg.edit(embed=success_embed)
 
@@ -2150,8 +2154,8 @@ async def buy_with_credits(ctx, plan: str, processor: str = "Intel"):
                     logger.warning(f"Failed to assign VPS role to {ctx.author.name}")
 
         # Enhanced success message like in screenshot
-        success_embed = create_success_embed("🎉 XeloraCloud - XeloraCloud VPS Created Successfully", "")
-        success_embed.set_thumbnail(url="https://i.imghippo.com/files/Mf6255KwU.png")
+        success_embed = create_success_embed("🎉 Zycron - Zycron VPS Created Successfully", "")
+        success_embed.set_thumbnail(url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg")
         
         success_embed.add_field(name="👤 Owner", value=f"{ctx.author.mention} • Piyush", inline=True)
         success_embed.add_field(name="🆔 VPS ID", value=f"#{vps_count}", inline=True) 
@@ -2162,8 +2166,8 @@ async def buy_with_credits(ctx, plan: str, processor: str = "Intel"):
         success_embed.add_field(name="✨ Features", value="Nesting, Privileged, FUSE, Kernel Modules (Docker Ready)", inline=False)
         success_embed.add_field(name="💾 Disk Note", value="Run `sudo resize2fs /` inside VPS if needed to expand filesystem.", inline=False)
         
-        success_embed.set_footer(text=f"XeloraCloud VPS Manager • Powered by Cloud Technology • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 
-                                icon_url="https://i.imghippo.com/files/Mf6255KwU.png")
+        success_embed.set_footer(text=f"Zycron VPS Manager • Powered by Cloud Technology • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 
+                                icon_url="https://i.ibb.co/XfknV1sc/IMG-20251018-110425.jpg")
 
         await purchase_msg.edit(embed=success_embed)
 
@@ -2367,3 +2371,5 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
     except Exception as e:
         logger.error(f"Failed to start bot: {e}")
+
+
